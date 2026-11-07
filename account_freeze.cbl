@@ -1,0 +1,25 @@
+IDENTIFICATION DIVISION.
+PROGRAM-ID. Q03-ACCOUNT-FREEZE.
+*> Allows withdrawal only if Active (A), KYC (Y), Fraud (N).
+*> Decision table: A/Y/N -> ALLOW; all other 7 combos -> BLOCK.
+
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+01  WS-ACCT-STATUS      PIC X(1).
+01  WS-KYC-FLAG         PIC X(1).
+01  WS-FRAUD-HOLD       PIC X(1).
+
+PROCEDURE DIVISION.
+0000-MAIN.
+    ACCEPT WS-ACCT-STATUS
+    ACCEPT WS-KYC-FLAG
+    ACCEPT WS-FRAUD-HOLD
+
+    IF WS-ACCT-STATUS = "A"
+       AND WS-KYC-FLAG = "Y"
+       AND WS-FRAUD-HOLD = "N"
+        DISPLAY "ALLOW"
+    ELSE
+        DISPLAY "BLOCK"
+    END-IF
+    STOP RUN.
