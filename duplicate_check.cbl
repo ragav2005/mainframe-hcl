@@ -1,0 +1,49 @@
+IDENTIFICATION DIVISION.
+PROGRAM-ID. Q13-DUPLICATE-CHECK.
+*> Accepts first occurrence of each ID and flags duplicates.
+*> Tests: adjacent dups, non-adjacent dups, 3x same ID.
+
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+01  WS-N                PIC 9(3) VALUE 0.
+01  WS-IDX              PIC 9(3) VALUE 0.
+01  WS-J                PIC 9(3) VALUE 0.
+01  WS-TXN-ID           PIC X(10).
+01  WS-TXN-TYPE         PIC X(1).
+01  WS-TXN-AMT          PIC 9(9) VALUE 0.
+01  WS-IS-DUP           PIC X(1) VALUE "N".
+01  WS-SEEN-COUNT       PIC 9(3) VALUE 0.
+01  WS-ACCEPTED-TOTAL   PIC 9(11) VALUE 0.
+01  WS-SEEN-TABLE.
+    05  WS-SEEN-ID      PIC X(10) OCCURS 100 TIMES.
+
+PROCEDURE DIVISION.
+0000-MAIN.
+    ACCEPT WS-N
+
+    PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > WS-N
+        ACCEPT WS-TXN-ID
+        ACCEPT WS-TXN-TYPE
+        ACCEPT WS-TXN-AMT
+
+        MOVE "N" TO WS-IS-DUP
+        PERFORM VARYING WS-J FROM 1 BY 1
+            UNTIL WS-J > WS-SEEN-COUNT OR WS-IS-DUP = "Y"
+            IF WS-SEEN-ID(WS-J) = WS-TXN-ID
+                MOVE "Y" TO WS-IS-DUP
+            END-IF
+        END-PERFORM
+
+        IF WS-IS-DUP = "Y"
+            DISPLAY WS-TXN-ID " DUPLICATE"
+        ELSE
+            ADD 1 TO WS-SEEN-COUNT
+            MOVE WS-TXN-ID TO WS-SEEN-ID(WS-SEEN-COUNT)
+            ADD WS-TXN-AMT TO WS-ACCEPTED-TOTAL
+            DISPLAY WS-TXN-ID " ACCEPTED"
+        END-IF
+    END-PERFORM
+
+    DISPLAY "UNIQUE COUNT: " WS-SEEN-COUNT
+    DISPLAY "UNIQUE TOTAL: " WS-ACCEPTED-TOTAL
+    STOP RUN.
